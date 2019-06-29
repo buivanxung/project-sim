@@ -1,0 +1,7 @@
+{
+    "sketch": "examples\\Xung\\SIM800_X\\SIM800_X.ino",
+    "port": "COM14",
+    "board": "esp8266:esp8266:nodemcuv2",
+    "programmer": "Arduino as ISP",
+    "configuration": "xtal=80,vt=flash,exception=enabled,eesz=4M,ip=lm2f,dbg=Disabled,lvl=None____,wipe=none,baud=115200"
+}

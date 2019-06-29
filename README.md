@@ -73,3 +73,4 @@ __________
 
 ### License
 This project is released under The MIT License (MIT)
+# Version 0.6.1 by Blynk
