@@ -50,11 +50,17 @@ public:
         domain = d;
         port = p;
     }
-
+    uint8_t mk = 0;
     bool connect() {
         if (domain) {
+            mk++;
             BLYNK_LOG4(BLYNK_F("Connecting to "), domain, ':', port);
-
+            if (mk == 100) {
+                #ifdef ESP_EX
+                    WiFi.disconnect();
+                    ESP.reset();
+                #endif
+            }
             isConn = (1 == client->connect(domain, port));
             return isConn;
         } else { //if (uint32_t(addr) != 0) {

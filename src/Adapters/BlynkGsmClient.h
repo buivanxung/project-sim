@@ -64,13 +64,6 @@ public:
         if (!modem->begin()) {
            BLYNK_FATAL(BLYNK_F("Cannot init"));
         }
-
-        switch (modem->getSimStatus()) {
-        case SIM_ERROR:  BLYNK_FATAL(BLYNK_F("SIM is missing"));    break;
-        case SIM_LOCKED: BLYNK_FATAL(BLYNK_F("SIM is PIN-locked")); break;
-        default: break;
-        }
-
         BLYNK_LOG1(BLYNK_F("Connecting to network..."));
         if (modem->waitForNetwork()) {
           String op = modem->getOperator();

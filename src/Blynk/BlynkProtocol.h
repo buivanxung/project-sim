@@ -17,6 +17,7 @@
 #include <Blynk/BlynkProtocolDefs.h>
 #include <Blynk/BlynkApi.h>
 #include <utility/BlynkUtility.h>
+#include "EEPROM.h"
 
 template <class Transp>
 class BlynkProtocol
@@ -242,7 +243,21 @@ bool BlynkProtocol<Transp>::processInput(void)
 
     if (hdr.type == BLYNK_CMD_RESPONSE) {
         lastActivityIn = BlynkMillis();
-
+        if (state == CONNECTING && (1 == hdr.msg_id)) {
+            if (hdr.length == BLYNK_INVALID_TOKEN){
+                #ifdef ESP_EX
+                    EEPROM.begin(512);
+                    delay(10);
+                    for (uint8_t i = 0; i < 32; ++i) {
+                        EEPROM.write(i, 0);
+                    }
+                    EEPROM.commit();
+                    EEPROM.end();
+                    WiFi.disconnect();
+                    ESP.restart();
+                #endif
+            }
+        }
 #ifndef BLYNK_USE_DIRECT_CONNECT
         if (state == CONNECTING && (1 == hdr.msg_id)) {
             switch (hdr.length) {

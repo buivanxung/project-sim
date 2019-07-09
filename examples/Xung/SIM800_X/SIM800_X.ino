@@ -7,7 +7,7 @@
 char seri[15] = "";
 char auth[34] = "";
 uint8_t csq;
-uint16_t flag = 0;
+uint8_t dem = 0;
 char server[] = "wirelesstech.online";
 
 TinyGsm modem(Serial);
@@ -22,31 +22,13 @@ void valueSignal()
 }
 void resetGSM(){
   Blynk.disconnect();
+  modem.poweroff();
   digitalWrite(13,0);
   delay(5000);
   digitalWrite(13,1);
-  delay(3000);
+  delay(5000);
 }
-void checkConnection()
-  {
-      if(!modem.isNetworkConnected()){
-        if(!modem.waitForNetwork()){
-          modem.restart();   
-        }
-        if (!modem.isGprsConnected()){
-          modem.restart();   
-        }
-        Blynk.begin(auth, modem, "e-connect", "", "",server,8082);
-      }
-  flag++;
-  if(flag == 10000){
-    flag = 0;
-    modem.poweroff();
-    resetGSM();
-    modem.restart(); 
-    Blynk.begin(auth, modem, "e-connect", "", "",server,8082);
-  }
- }
+ //void (* resetFunc) (void) =0; 
 BLYNK_CONNECTED(){
   Blynk.syncAll();
 }
@@ -81,11 +63,21 @@ void setup()
   modem.restart();
   Blynk.begin(auth, modem, "e-connect", "", "",server,8082);
   timer.setInterval(50000L, valueSignal);
-  timer.setInterval(50000L, checkConnection);
 }
 
 void loop()
 {
-   Blynk.run();
+   if(!Blynk.run()){
+     dem ++;
+     if(dem == 10){
+       resetGSM();
+        modem.restart();
+        Blynk.begin(auth, modem, "e-connect", "", "",server,8082);
+        dem = 0;
+     }else
+     {
+       dem = 0;
+     }
+   }
    timer.run();
 }
