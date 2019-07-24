@@ -23,20 +23,21 @@ void valueSignal()
 void resetGSM(){
   Blynk.disconnect();
   modem.poweroff();
-  digitalWrite(13,0);
-  delay(5000);
   digitalWrite(13,1);
   delay(5000);
+  digitalWrite(13,0);
+  delay(5000);
 }
- //void (* resetFunc) (void) =0; 
+
 BLYNK_CONNECTED(){
   Blynk.syncAll();
 }
+
 void setup()
 {
   Serial.begin(115200);
   pinMode(13, OUTPUT);
-  digitalWrite(13,1);
+  digitalWrite(13,0);
   for ( uint8_t i = 0; i < 32; i++) {
     auth[i]= char(EEPROM.read(i));
   }
@@ -60,6 +61,7 @@ void setup()
     delay(2000);
     http.stop();
   }
+  delay(2000);
   modem.restart();
   Blynk.begin(auth, modem, "e-connect", "", "",server,8082);
   timer.setInterval(50000L, valueSignal);

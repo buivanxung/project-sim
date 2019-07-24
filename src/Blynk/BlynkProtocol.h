@@ -178,7 +178,7 @@ bool BlynkProtocol<Transp>::run(bool avail)
             internalReconnect();
             return false;
         }
-
+        
         if (t - lastActivityIn > (1000UL * BLYNK_HEARTBEAT + BLYNK_TIMEOUT_MS*3)) {
 #ifdef BLYNK_DEBUG
             BLYNK_LOG6(BLYNK_F("Heartbeat timeout: "), t, BLYNK_F(", "), lastActivityIn, BLYNK_F(", "), lastHeartbeat);

@@ -22,23 +22,25 @@ HTTPClient http;
 
 bool testWifi();
 void checkSeri();
+BLYNK_CONNECTED(){
+  Blynk.syncAll();
+}
 void setup() {
     String esid = "";
     String epass = "";
-    Serial.begin(115200);
     EEPROM.begin(512);
     delay(10);
-    
+
     for (uint8_t i = 0; i < 32; ++i) {
         esid += char(EEPROM.read(i));
     }
     esid.trim();
-    
+
     for (uint8_t i = 32; i < 96; ++i) {
         epass += char(EEPROM.read(i));
     }
     epass.trim();
-    
+
     for (uint8_t i = 96; i < 128; ++i) {
         eblynk += char(EEPROM.read(i));
     }
@@ -57,7 +59,7 @@ void setup() {
             Blynk.begin(auth_, esid.c_str(), epass.c_str(),"wirelesstech.online", 8082);
             return;
         }
-    } 
+    }
 }
 
 void checkSeri(){
@@ -65,7 +67,6 @@ void checkSeri(){
    int httpCode = http.GET();
     if(httpCode == HTTP_CODE_OK) {
      String payload = http.getString();
-        Serial.println(payload);
         if (payload[0] == 'O') {
             EEPROM.begin(512);
             for (uint8_t i = 0; i < 32; ++i) {
@@ -79,26 +80,24 @@ void checkSeri(){
             EEPROM.end();
             http.begin("http://wirelesstech.online:5060/reques?" + eseri);
             httpCode = http.GET();
+            ESP.restart();
         }
-      }else {
-        Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
       }
       http.end();
 }
- 
+
 bool testWifi() {
      int c = 0;
      while ( c < 20 ) {
           if (WiFi.status() == WL_CONNECTED) {
               if (Ping.ping("www.google.com",5)) {
-               
                 return true;
               }
             }
           delay(1000);
           c++;
      }
-      
+
     setupAP();
     while ( c < 15000 ) {
         server.handleClient();
@@ -107,14 +106,14 @@ bool testWifi() {
     }
     ESP.restart();
 }
- 
+
 void setupAP() {
     WiFi.disconnect();
     delay(100);
     WiFi.mode(WIFI_STA);
     delay(100);
     String temp = (String)ssid + eseri;
-    uint8_t templ = temp.length() + 1; 
+    uint8_t templ = temp.length() + 1;
     char char_array[templ];
     temp.toCharArray(char_array, templ);
     uint8_t n = WiFi.scanNetworks();
@@ -126,12 +125,12 @@ void setupAP() {
         // Print SSID and RSSI for each network found
         st += "<option value=\""+WiFi.SSID(i)+"\">"+WiFi.SSID(i)+"</option>\n";
     }
-    
+
     WiFi.softAP(char_array, passphrase, 6);
     createWebServer();
     server.begin();
 }
- 
+
 void createWebServer() {
     server.on("/", []() {
         content = "<!DOCTYPE HTML>\r\n<html>";
@@ -154,7 +153,7 @@ void createWebServer() {
         String qsid = server.arg("ssid");
         String qpass = server.arg("pwd");
         String qblynk = server.arg("blyn");
-        
+
         if (qsid.length() > 0) {
             EEPROM.begin(512);
             for (uint8_t i = 0; i < 128; ++i) {
@@ -172,7 +171,7 @@ void createWebServer() {
             }
             EEPROM.commit();
             EEPROM.end();
-            
+
             content = "{\"Success\":\"Luu vao he thong. Khoi dong lai ten wifi moi\"}";
             server.send(200, "application/json", content);
             delay(5000);
@@ -183,7 +182,7 @@ void createWebServer() {
         }
     });
 }
- 
+
 void loop() {
     Blynk.run();
 }
